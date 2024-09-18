@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { User } from '@supabase/auth-helpers-react';
 import { useRouter } from 'next/navigation';
 import { TrendingUp } from "lucide-react";
@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/chart";
 import { Button } from "@/components/ui/button";
 import TopBar from './TopBar';
+import { supabase } from '@/app/lib/supabase';
 
 const chartData = [
   { month: "January", desktop: 186 },
@@ -38,11 +39,12 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-const receipts = [
-  { id: 1, date: '2023-06-01', total: 56.78, store: 'Grocery Store' },
-  { id: 2, date: '2023-06-03', total: 23.45, store: 'Gas Station' },
-  { id: 3, date: '2023-06-05', total: 89.99, store: 'Electronics Shop' },
-];
+interface Receipt {
+  id: string;
+  date: string;
+  total_amount: number;
+  merchant: string;
+}
 
 interface DashboardProps {
   user: User;
@@ -50,6 +52,31 @@ interface DashboardProps {
 
 export default function Dashboard({ user }: DashboardProps) {
   const router = useRouter();
+  const [receipts, setReceipts] = useState<Receipt[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchReceipts = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('receipts')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('date', { ascending: false })
+          .limit(5);
+
+        if (error) throw error;
+
+        setReceipts(data || []);
+      } catch (error) {
+        console.error('Error fetching receipts:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchReceipts();
+  }, [user.id]);
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -126,14 +153,20 @@ export default function Dashboard({ user }: DashboardProps) {
               <CardTitle>Recent Receipts</CardTitle>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-2">
-                {receipts.map((receipt) => (
-                  <li key={receipt.id} className="flex justify-between items-center p-2 bg-secondary rounded-md">
-                    <span>{receipt.date} - {receipt.store}</span>
-                    <span className="font-semibold">${receipt.total.toFixed(2)}</span>
-                  </li>
-                ))}
-              </ul>
+              {isLoading ? (
+                <p>Loading receipts...</p>
+              ) : receipts.length === 0 ? (
+                <p>No receipts found. Start by adding a new receipt!</p>
+              ) : (
+                <ul className="space-y-2">
+                  {receipts.map((receipt) => (
+                    <li key={receipt.id} className="flex justify-between items-center p-2 bg-secondary rounded-md">
+                      <span>{new Date(receipt.date).toLocaleDateString()} - {receipt.merchant}</span>
+                      <span className="font-semibold">${receipt.total_amount.toFixed(2)}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </CardContent>
           </Card>
         </div>

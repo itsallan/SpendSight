@@ -92,7 +92,7 @@ export default function ReceiptAnalyzer() {
       await append({
         content: `Please analyze this receipt and provide the following information in JSON format:
         1. A list of items purchased with their prices
-        2. The location where the purchase was made (store name)
+        2. The location where the purchase was made (merchant name)
         3. A short summary about the receipt
         4. If there's a MERCHCANT code, please include it
         5. Calculate and include the total for all the purchased items
@@ -130,12 +130,10 @@ export default function ReceiptAnalyzer() {
     try {
       console.log('Attempting to save receipt for user:', user.id);
       
-      // Parse the total amount, handling both string and number cases
       const totalAmount = typeof receipt.total === 'string' 
         ? parseFloat(receipt.total.replace('$', ''))
         : receipt.total;
 
-      // Log the data being sent to Supabase
       const receiptData = {
         user_id: user.id,
         merchant: receipt.location,
@@ -162,8 +160,10 @@ export default function ReceiptAnalyzer() {
         description: "Receipt saved successfully!",
       });
 
-      // Temporarily comment this out for debugging
-      // router.push('/');
+      // Navigate back to the dashboard after a short delay
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 1500); // 1.5 seconds delay to allow the user to see the success message
     } catch (error) {
       console.error('Error saving receipt:', error);
       let errorMessage = 'An unexpected error occurred';
@@ -250,9 +250,10 @@ export default function ReceiptAnalyzer() {
               <CardTitle>Receipt Analysis</CardTitle>
             </CardHeader>
             <CardContent>
-            {structuredOutput.machcat && <p><strong>Merchant:</strong> {structuredOutput.machcat}</p>}
-              <p><strong>Location / Store:</strong> {structuredOutput.location}</p>
+              <p><strong>Merchant:</strong> {structuredOutput.location}</p>
               <p><strong>Date:</strong> {structuredOutput.date}</p>
+              <p><strong>Summary:</strong> {structuredOutput.summary}</p>
+              {structuredOutput.machcat && <p><strong>MACHCAT:</strong> {structuredOutput.machcat}</p>}
               <Separator className="my-4" />
               <h3 className="text-lg font-semibold mb-2">Items Purchased:</h3>
               <ul className="space-y-2">
@@ -268,11 +269,6 @@ export default function ReceiptAnalyzer() {
                 <span>Total:</span>
                 <span>{structuredOutput.total}</span>
               </p>
-
-              <p className="text-lg font-semibold flex justify-between">
-                <strong>Summary:</strong>
-                 {structuredOutput.summary}
-                </p>
               <Button
                 onClick={() => {
                   console.log('Save button clicked');
