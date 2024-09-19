@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import { Upload, ReceiptIcon, Image as ImageIcon } from "lucide-react"
+import { ReceiptIcon, Image as ImageIcon, ArrowLeft } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/app/lib/supabase';
@@ -47,10 +47,6 @@ export default function ReceiptAnalyzer() {
   const user = useUser();
   const { toast } = useToast();
   const router = useRouter();
-
-  useEffect(() => {
-    console.log('Current user:', user);
-  }, [user]);
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -114,9 +110,7 @@ export default function ReceiptAnalyzer() {
   };
 
   const saveReceiptToDatabase = async (receipt: StructuredReceipt) => {
-    console.log('saveReceiptToDatabase called with:', receipt);
     if (!user) {
-      console.log('No user found');
       toast({
         title: "Authentication Error",
         description: "You must be logged in to save receipts.",
@@ -128,8 +122,6 @@ export default function ReceiptAnalyzer() {
     setIsSaving(true);
 
     try {
-      console.log('Attempting to save receipt for user:', user.id);
-      
       const totalAmount = typeof receipt.total === 'string' 
         ? parseFloat(receipt.total.replace('$', ''))
         : receipt.total;
@@ -141,35 +133,28 @@ export default function ReceiptAnalyzer() {
         total_amount: totalAmount,
         items: receipt.items,
       };
-      console.log('Data being sent to Supabase:', receiptData);
 
       const { data, error } = await supabase
         .from('receipts')
         .insert(receiptData)
         .select();
 
-      if (error) {
-        console.error('Supabase insert error:', error);
-        throw error;
-      }
-
-      console.log('Receipt saved successfully:', data);
+      if (error) throw error;
 
       toast({
         title: "Success",
         description: "Receipt saved successfully!",
       });
 
-      // Navigate back to the dashboard after a short delay
+      // Navigate back to the main dashboard after a short delay
       setTimeout(() => {
-        router.push('/dashboard');
+        router.push('/');
       }, 1500); // 1.5 seconds delay to allow the user to see the success message
     } catch (error) {
       console.error('Error saving receipt:', error);
       let errorMessage = 'An unexpected error occurred';
       if (isPostgrestError(error)) {
         errorMessage = `Supabase error: ${error.message}`;
-        console.error('Supabase error details:', error.details);
       } else if (error instanceof Error) {
         errorMessage = error.message;
       }
@@ -205,94 +190,117 @@ export default function ReceiptAnalyzer() {
   }, [messages, toast]);
 
   return (
-    <Card className="bg-card text-card-foreground">
-      <CardHeader>
-        <CardTitle>Receipt Analyzer</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex items-center space-x-4 mb-4">
-          <div className="flex-shrink-0">
-            <Label htmlFor="image-upload" className="cursor-pointer">
-              <div className="w-16 h-16 bg-secondary rounded-lg flex items-center justify-center">
-                {imageUrl ? (
-                  <img 
-                    src={imageUrl} 
-                    alt="Uploaded receipt" 
-                    className="w-full h-full object-cover rounded-lg"
-                  />
+    <div className="min-h-screen bg-black text-white p-6">
+      <div className="max-w-7xl mx-auto">
+        <Card className="bg-[#030303] border-gray-800">
+          <CardHeader className="flex flex-row items-center justify-between">
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col md:flex-row gap-6">
+              {/* Left side - Upload section */}
+              <div className="w-full md:w-1/3">
+                <Card className="bg-[#1c1c1c] border-none">
+                  <CardContent className="pt-6">
+                    <div className="flex flex-col items-center space-y-4">
+                      <Label htmlFor="image-upload" className="cursor-pointer">
+                        <div className="w-32 h-32 bg-[#252525] rounded-md flex items-center justify-center">
+                          {imageUrl ? (
+                            <img 
+                              src={imageUrl} 
+                              alt="Uploaded receipt" 
+                              className="w-full h-full object-cover rounded-md"
+                            />
+                          ) : (
+                            <ImageIcon className="w-16 h-16 text-gray-400" />
+                          )}
+                        </div>
+                      </Label>
+                      <Input
+                        id="image-upload"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                      />
+                      <Button
+                        onClick={handleProcessReceipt}
+                        className="w-full bg-[#1d4ed8] hover:bg-[#1e40af] text-white"
+                        disabled={!imageUrl || isLoading}
+                      >
+                        {isLoading ? 'Processing...' : 'Process Receipt'}
+                        <ReceiptIcon className="ml-2 h-4 w-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Right side - Results section */}
+              <div className="w-full md:w-2/3">
+                {structuredOutput ? (
+                  <Card className="bg-[#1c1c1c] border-none">
+                    <CardHeader>
+                      <CardTitle className="text-lg font-bold">Receipt Analysis</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <p className="text-sm text-gray-400">Merchant</p>
+                            <p className="text-lg font-semibold">{structuredOutput.location}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-400">Date</p>
+                            <p className="text-lg font-semibold">{structuredOutput.date}</p>
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-400">Summary</p>
+                          <p>{structuredOutput.summary}</p>
+                        </div>
+                        {structuredOutput.machcat && (
+                          <div>
+                            <p className="text-sm text-gray-400">MACHCAT</p>
+                            <p>{structuredOutput.machcat}</p>
+                          </div>
+                        )}
+                        <Separator className="bg-gray-700" />
+                        <div>
+                          <p className="text-lg font-semibold mb-2">Items Purchased</p>
+                          <ul className="space-y-2">
+                            {structuredOutput.items.map((item, index) => (
+                              <li key={index} className="flex justify-between">
+                                <span>{item.name}</span>
+                                <span className="font-semibold">{item.price}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <Separator className="bg-gray-700" />
+                        <div className="flex justify-between items-center text-xl font-semibold">
+                          <span>Total:</span>
+                          <span>{structuredOutput.total}</span>
+                        </div>
+                        <Button
+                          onClick={() => saveReceiptToDatabase(structuredOutput)}
+                          className="w-full bg-[#1d4ed8] hover:bg-[#1e40af] text-white"
+                          disabled={isSaving}
+                        >
+                          {isSaving ? 'Saving...' : 'Save Receipt'}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
                 ) : (
-                  <ImageIcon className="w-8 h-8 text-muted-foreground" />
+                  <div className="h-full flex items-center justify-center text-gray-400">
+                    Upload and process a receipt to see the analysis results here.
+                  </div>
                 )}
               </div>
-            </Label>
-            <Input
-              id="image-upload"
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              className="hidden"
-            />
-          </div>
-          <div className="flex-grow">
-            <Button
-              onClick={handleProcessReceipt}
-              className="w-full"
-              disabled={!imageUrl || isLoading}
-            >
-              {isLoading ? 'Processing...' : 'Process Receipt'}
-              <ReceiptIcon className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-        {structuredOutput && (
-          <Card className="bg-secondary text-secondary-foreground mt-4">
-            <CardHeader>
-              <CardTitle>Receipt Analysis</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p><strong>Merchant:</strong> {structuredOutput.location}</p>
-              <p><strong>Date:</strong> {structuredOutput.date}</p>
-              <p><strong>Summary:</strong> {structuredOutput.summary}</p>
-              {structuredOutput.machcat && <p><strong>MACHCAT:</strong> {structuredOutput.machcat}</p>}
-              <Separator className="my-4" />
-              <h3 className="text-lg font-semibold mb-2">Items Purchased:</h3>
-              <ul className="space-y-2">
-                {structuredOutput.items.map((item, index) => (
-                  <li key={index} className="flex justify-between">
-                    <span>{item.name}</span>
-                    <span>{item.price}</span>
-                  </li>
-                ))}
-              </ul>
-              <Separator className="my-4" />
-              <p className="text-lg font-semibold flex justify-between">
-                <span>Total:</span>
-                <span>{structuredOutput.total}</span>
-              </p>
-              <Button
-                onClick={() => {
-                  console.log('Save button clicked');
-                  if (structuredOutput) {
-                    console.log('Structured output available:', structuredOutput);
-                    saveReceiptToDatabase(structuredOutput);
-                  } else {
-                    console.log('No structured output available');
-                    toast({
-                      title: "Error",
-                      description: "No receipt data to save.",
-                      variant: "destructive",
-                    });
-                  }
-                }}
-                className="w-full mt-4"
-                disabled={isSaving || !structuredOutput}
-              >
-                {isSaving ? 'Saving...' : 'Save Receipt'}
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-      </CardContent>
-    </Card>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 }

@@ -15,11 +15,11 @@ export default function ClientHome() {
   }, [session]);
 
   if (loading) {
-    return <div className="text-white">Loading...</div>;
+    return <div className="min-h-screen bg-black text-white flex items-center justify-center">Loading...</div>;
   }
 
   return (
-    <div className="w-full">
+    <div className="min-h-screen bg-black">
       {session ? (
         <Dashboard user={session.user} />
       ) : (
