@@ -15,6 +15,7 @@ export default function AuthPage() {
     const [fullName, setFullName] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [isSignUp, setIsSignUp] = useState(false);
+    const router = useRouter();
     const supabase = createClientComponentClient();
     const { toast } = useToast();
 
