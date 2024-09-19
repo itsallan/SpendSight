@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
-import Dashboard from '@/components/DashBoard';
+import Dashboard from '@/app/dashboard/DashBoardContent';
 import Auth from '@/components/Auth';
 import { Toaster } from "@/components/ui/toaster"
 
