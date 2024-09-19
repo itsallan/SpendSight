@@ -69,7 +69,6 @@ export default function Dashboard({ user }: DashboardProps) {
         <Tabs defaultValue="overview" className="mb-6">
           <TabsList className="bg-gray-900">
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="reports">Reports</TabsTrigger>
           </TabsList>
         </Tabs>
