@@ -125,8 +125,8 @@ Thinking about contributing? Awesome! Here's what you need to do:
 
 ### Set up a new project in Supabase.
 
-Create a bucket called `receipts`.
-Run the SQL scripts for the `receipts` and `profiles` tables provided earlier.
+1. Create a bucket called `receipts`.
+2. Run the SQL scripts for the `receipts` and `profiles` tables provided earlier.
 
 ### How to Use SpendSight
 1. **Upload Receipts**: After signing up or logging in, start by uploading your receipts.
