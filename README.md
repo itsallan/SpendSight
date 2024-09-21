@@ -137,8 +137,8 @@ Thinking about contributing? Awesome! Here's what you need to do:
 4. **Export as CSV**: Want a downloadable record? Export your receipt data in CSV format with one click.
 ## Demo
 
-Check out the deployed [App](https://www.github.com/itsallan)
+Check out the deployed [App](https://spend-sight-x5yy.vercel.app)
 ## Authors
 
-- [allan](https://www.github.com/itsallan)
+- [itsallan](https://www.github.com/itsallan)
 
