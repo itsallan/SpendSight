@@ -35,8 +35,7 @@ SpendSight relies on two main database tables for receipts and user profiles. He
 
 ### Receipts Table
 
-```sql
-CREATE TABLE receipts (
+'CREATE TABLE receipts (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   user_id UUID REFERENCES auth.users(id),
   merchant VARCHAR(255) NOT NULL,
@@ -45,7 +44,7 @@ CREATE TABLE receipts (
   items JSONB,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);```
+);'
 
 ### Set Up Storage
 To store receipts, you'll need to create a storage bucket in Supabase:
