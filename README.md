@@ -45,4 +45,61 @@ CREATE TABLE receipts (
   items JSONB,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
+);```
+
+### Set Up Storage
+To store receipts, you'll need to create a storage bucket in Supabase:
+
+Open the Supabase dashboard.
+Create a bucket and name it receipts.
+Getting Started with SpendSight
+Requirements
+Before you begin, ensure you have:
+
+Node.js (v14 or later)
+A Supabase account
+An OpenAI API key
+Installation
+Clone this repository:
+
+bash
+Copy code
+git clone https://github.com/your-username/spendsight.git
+cd spendsight
+Install the necessary packages:
+
+bash
+Copy code
+npm install
+Set up your environment variables. Create a .env.local file and add your Supabase and OpenAI credentials:
+
+bash
+Copy code
+NEXT_PUBLIC_SUPABASE_URL=<your-supabase-url>
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-supabase-anon-key>
+OPENAI_API_KEY=<your-openai-api-key>
+Start the development server:
+
+bash
+Copy code
+npm run dev
+Now, visit http://localhost:3000 to start using SpendSight.
+
+Contributing to SpendSight
+Thinking about contributing? Awesome! Here's what you need to do:
+
+Fork this repository.
+Create a new branch for your feature or fix.
+Make your changes.
+Submit a pull request, and we'll review it.
+Supabase Setup
+Make sure to configure Supabase for user authentication, storage, and database management:
+
+Set up a new project in Supabase.
+Create a bucket called receipts.
+Run the SQL scripts for the receipts and profiles tables provided earlier.
+How to Use SpendSight
+Upload Receipts: After signing up or logging in, start by uploading your receipts.
+AI Data Extraction: Watch as OpenAI works its magic by extracting key details.
+Track Spending: View the extracted details in your personalized dashboard.
+Export as CSV: Want a downloadable record? Export your receipt data in CSV format with one click.
