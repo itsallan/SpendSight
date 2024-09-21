@@ -1,43 +1,42 @@
-# Vercel AI SDK, Next.js, and OpenAI Chat Example
+# SpendSight
 
-This example shows how to use the [Vercel AI SDK](https://sdk.vercel.ai/docs) with [Next.js](https://nextjs.org/) and [OpenAI](https://openai.com) to create a ChatGPT-like AI-powered streaming chat bot.
+SpendSight is a Next.js and TypeScript application that allows users to upload receipts, extract key details using the OpenAI API, and track their spending. It uses Supabase for authentication, storage, and database management.
 
-## Deploy your own
+## Features
 
-Deploy the example using [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=ai-sdk-example):
+- **Receipt Upload**: Users can upload receipt images.
+- **AI-Powered Extraction**: OpenAI extracts details from receipts, such as items purchased and total amount.
+- **Data Storage**: Extracted data is stored in the Supabase database.
+- **User Dashboard**: Users can view their receipts and spending trends through graphs.
+- **CSV Export**: Users can export a CSV file of their receipts and related data.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fai%2Ftree%2Fmain%2Fexamples%2Fnext-openai&env=OPENAI_API_KEY&project-name=ai-sdk-next-openai&repository-name=ai-sdk-next-openai)
+## Technologies
 
-## How to use
+- **Next.js**: For building the frontend.
+- **TypeScript**: For type safety and better development experience.
+- **Supabase**: Authentication, storage (bucket), and database.
+- **OpenAI API**: For extracting details from uploaded receipt images.
 
-Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [npm](https://docs.npmjs.com/cli/init), [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/), or [pnpm](https://pnpm.io) to bootstrap the example:
+## How It Works
 
-```bash
-npx create-next-app --example https://github.com/vercel/ai/tree/main/examples/next-openai next-openai-app
-```
+1. A user uploads an image of their receipt.
+2. The OpenAI API extracts the details (items, total amount, etc.) from the receipt.
+3. These details are saved in the Supabase database.
+4. The user's dashboard displays the receipt details and visualizes financial data (spending trends, graphs, etc.).
+5. Users can export their data as a CSV file for further use.
 
-```bash
-yarn create next-app --example https://github.com/vercel/ai/tree/main/examples/next-openai next-openai-app
-```
+## Database Schema
 
-```bash
-pnpm create next-app --example https://github.com/vercel/ai/tree/main/examples/next-openai next-openai-app
-```
+### Receipts Table
 
-To run the example locally you need to:
-
-1. Sign up at [OpenAI's Developer Platform](https://platform.openai.com/signup).
-2. Go to [OpenAI's dashboard](https://platform.openai.com/account/api-keys) and create an API KEY.
-3. If you choose to use external files for attachments, then create a [Vercel Blob Store](https://vercel.com/docs/storage/vercel-blob).
-4. Set the required environment variable as the token value as shown [the example env file](./.env.local.example) but in a new file called `.env.local`
-5. `pnpm install` to install the required dependencies.
-6. `pnpm dev` to launch the development server.
-
-## Learn More
-
-To learn more about OpenAI, Next.js, and the Vercel AI SDK take a look at the following resources:
-
-- [Vercel AI SDK docs](https://sdk.vercel.ai/docs)
-- [Vercel AI Playground](https://play.vercel.ai)
-- [OpenAI Documentation](https://platform.openai.com/docs) - learn about OpenAI features and API.
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+```sql
+CREATE TABLE receipts (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id),
+  merchant VARCHAR(255) NOT NULL,
+  date DATE NOT NULL,
+  total_amount DECIMAL(10, 2) NOT NULL,
+  items JSONB,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
