@@ -82,32 +82,31 @@ Node.js (v14 or later)
 A Supabase account
 An OpenAI API key
 ### Installation
-1 Clone this repository:
+1. Clone this repository:
 
 ```bash
 git clone https://github.com/your-username/spendsight.git
 cd spendsight
 ```
-### Install the necessary packages:
+2. Install the necessary packages:
 
 ```bash
 npm install
 ```
-Set up your environment variables. Create a .env.local file and add your Supabase and OpenAI credentials:
+3. Set up your environment variables. Create a `.env.local` file and add your Supabase and OpenAI credentials:
 
-bash
 ```javascript
 NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
 OPENAI_API_KEY=your-openai-api-key
 ```
-Start the development server:
+4. Start the development server:
 ```bash
 npm run dev
 ```
 Now, visit http://localhost:3000 to start using SpendSight.
 
-Contributing to SpendSight
+### Contributing to SpendSight
 Thinking about contributing? Awesome! Here's what you need to do:
 
 Fork this repository.
