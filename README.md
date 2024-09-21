@@ -117,11 +117,11 @@ Thinking about contributing? Awesome! Here's what you need to do:
 5. Supabase Setup
 6. Make sure to configure Supabase for user authentication, storage, and database management:
 
-Set up a new project in Supabase.
+### Set up a new project in Supabase.
 Create a bucket called receipts.
-Run the SQL scripts for the receipts and profiles tables provided earlier.
-How to Use SpendSight
-Upload Receipts: After signing up or logging in, start by uploading your receipts.
-AI Data Extraction: Watch as OpenAI works its magic by extracting key details.
-Track Spending: View the extracted details in your personalized dashboard.
-Export as CSV: Want a downloadable record? Export your receipt data in CSV format with one click.
+Run the SQL scripts for the `receipts` and `profiles` tables provided earlier.
+### How to Use SpendSight
+1. Upload Receipts: After signing up or logging in, start by uploading your receipts.
+2. AI Data Extraction: Watch as OpenAI works its magic by extracting key details.
+3. Track Spending: View the extracted details in your personalized dashboard.
+4. Export as CSV: Want a downloadable record? Export your receipt data in CSV format with one click.
