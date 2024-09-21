@@ -1,43 +1,144 @@
-# Vercel AI SDK, Next.js, and OpenAI Chat Example
+# SpendSight
 
-This example shows how to use the [Vercel AI SDK](https://sdk.vercel.ai/docs) with [Next.js](https://nextjs.org/) and [OpenAI](https://openai.com) to create a ChatGPT-like AI-powered streaming chat bot.
+Welcome to **SpendSight** – a handy tool designed to help users keep track of their spending by simply uploading receipts. It's built using **Next.js** and **TypeScript**, with **Supabase** handling our backend tasks like authentication, storage, and the database, and **OpenAI** handling the magic of extracting receipt details.
 
-## Deploy your own
+## What SpendSight Does
 
-Deploy the example using [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=ai-sdk-example):
+With SpendSight, you can:
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fai%2Ftree%2Fmain%2Fexamples%2Fnext-openai&env=OPENAI_API_KEY&project-name=ai-sdk-next-openai&repository-name=ai-sdk-next-openai)
+- **Upload Receipts**: Snap a picture or upload a digital receipt.
+- **AI-Powered Extraction**: We'll automatically grab important details from the receipt, like items purchased and the total amount spent, thanks to OpenAI.
+- **Store Your Data**: All extracted information is saved safely in the Supabase database.
+- **Track Your Spending**: You can easily view your past purchases in a visually pleasing dashboard with graphs showing your spending trends.
+- **Export CSV**: Want to take your data with you? You can export all your receipts into a CSV file anytime.
 
-## How to use
+## The Tech Stack
 
-Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [npm](https://docs.npmjs.com/cli/init), [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/), or [pnpm](https://pnpm.io) to bootstrap the example:
+- **Next.js**: React framework for building the frontend.
+- **TypeScript**: Ensures clean, well-typed code.
+- **Supabase**: Used for user authentication, database management, and file storage.
+- **OpenAI API**: Extracts all the essential details from your uploaded receipts.
+
+## How It All Works
+
+Here’s a breakdown of the app flow:
+
+1. A user uploads a receipt image.
+2. OpenAI analyzes the image and extracts details like merchant name, date, items, and total amount.
+3. The extracted data is stored in Supabase for future access.
+4. On the user's dashboard, graphs and charts provide insights into spending habits.
+5. Users can also download their receipt data as a CSV file.
+
+## Database Schema Overview
+
+SpendSight relies on two main database tables for receipts and user profiles. Here's a quick look:
+
+![SpendSight Schema](https://github.com/user-attachments/assets/e62f3c47-5ba9-4f2f-b3d2-904293c764ce)
+
+### Receipts Table
+
+```sql
+CREATE TABLE receipts (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id),
+  merchant VARCHAR(255) NOT NULL,
+  date DATE NOT NULL,
+  total_amount DECIMAL(10, 2) NOT NULL,
+  items JSONB,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+```
+### Profiles Table
+```sql
+Copy code
+CREATE TABLE profiles (
+  id UUID REFERENCES auth.users(id) PRIMARY KEY,
+  username VARCHAR(255) UNIQUE,
+  full_name VARCHAR(255),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+```
+### Security Policies
+
+To ensure user privacy, we have set up row-level security policies that restrict access to only the user’s data:
+
+```sql
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can only view their own profile" ON profiles
+  FOR SELECT USING (auth.uid() = id);
+
+CREATE POLICY "Users can update their own profile" ON profiles
+  FOR UPDATE USING (auth.uid() = id);
+```
+  
+### Set Up Storage
+
+To store receipts, you'll need to create a storage bucket in Supabase:
+
+1. Open the Supabase dashboard.
+2. Create a bucket and name it receipts.
+
+### Requirements
+
+Before setting up the project, make sure you have:
+
+- Node.js (v14 or higher)
+- A Supabase account
+- An OpenAI API key
+
+### Installation
+
+1. Clone this repository:
 
 ```bash
-npx create-next-app --example https://github.com/vercel/ai/tree/main/examples/next-openai next-openai-app
+git clone https://github.com/your-username/spendsight.git
+cd spendsight
 ```
+2. Install the necessary packages:
 
 ```bash
-yarn create next-app --example https://github.com/vercel/ai/tree/main/examples/next-openai next-openai-app
+npm install
 ```
+3. Set up your environment variables. Create a `.env.local` file and add your Supabase and OpenAI credentials:
 
+```javascript
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+OPENAI_API_KEY=your-openai-api-key
+```
+4. Start the development server:
 ```bash
-pnpm create next-app --example https://github.com/vercel/ai/tree/main/examples/next-openai next-openai-app
+npm run dev
 ```
+Now, visit http://localhost:3000 to start using SpendSight.
 
-To run the example locally you need to:
+### Contributing to SpendSight
 
-1. Sign up at [OpenAI's Developer Platform](https://platform.openai.com/signup).
-2. Go to [OpenAI's dashboard](https://platform.openai.com/account/api-keys) and create an API KEY.
-3. If you choose to use external files for attachments, then create a [Vercel Blob Store](https://vercel.com/docs/storage/vercel-blob).
-4. Set the required environment variable as the token value as shown [the example env file](./.env.local.example) but in a new file called `.env.local`
-5. `pnpm install` to install the required dependencies.
-6. `pnpm dev` to launch the development server.
+Thinking about contributing? Awesome! Here's what you need to do:
 
-## Learn More
+1. Fork this repository.
+2. Create a new branch for your feature or fix.
+3. Make your changes.
+4. Submit a pull request, and we'll review it.
+5. Supabase Setup
+6. Make sure to configure Supabase for user authentication, storage, and database management:
 
-To learn more about OpenAI, Next.js, and the Vercel AI SDK take a look at the following resources:
+### Set up a new project in Supabase.
 
-- [Vercel AI SDK docs](https://sdk.vercel.ai/docs)
-- [Vercel AI Playground](https://play.vercel.ai)
-- [OpenAI Documentation](https://platform.openai.com/docs) - learn about OpenAI features and API.
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+1. Create a bucket called `receipts`.
+2. Run the SQL scripts for the `receipts` and `profiles` tables provided earlier.
+
+### How to Use SpendSight
+1. **Upload Receipts**: After signing up or logging in, start by uploading your receipts.
+2. **AI Data Extraction**: Watch as OpenAI works its magic by extracting key details.
+3. **Track Spending**: View the extracted details in your personalized dashboard.
+4. **Export as CSV**: Want a downloadable record? Export your receipt data in CSV format with one click.
+## Demo
+
+Check out the deployed [App](https://spend-sight-x5yy.vercel.app)
+## Authors
+
+- [itsallan](https://www.github.com/itsallan)
+
