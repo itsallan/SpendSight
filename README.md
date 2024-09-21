@@ -30,9 +30,10 @@ Here’s a breakdown of the app flow:
 5. Users can also download their receipt data as a CSV file.
 
 ## Database Schema Overview
-![SpendSight Schema](https://github.com/user-attachments/assets/e62f3c47-5ba9-4f2f-b3d2-904293c764ce)
 
 SpendSight relies on two main database tables for receipts and user profiles. Here's a quick look:
+
+![SpendSight Schema](https://github.com/user-attachments/assets/e62f3c47-5ba9-4f2f-b3d2-904293c764ce)
 
 ### Receipts Table
 
