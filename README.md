@@ -125,3 +125,7 @@ Run the SQL scripts for the `receipts` and `profiles` tables provided earlier.
 2. AI Data Extraction: Watch as OpenAI works its magic by extracting key details.
 3. Track Spending: View the extracted details in your personalized dashboard.
 4. Export as CSV: Want a downloadable record? Export your receipt data in CSV format with one click.
+   ## Authors
+
+- [allan](https://www.github.com/itsallan)
+
