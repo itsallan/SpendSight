@@ -82,7 +82,7 @@ Node.js (v14 or later)
 A Supabase account
 An OpenAI API key
 ### Installation
-Clone this repository:
+1 Clone this repository:
 
 ```bash
 git clone https://github.com/your-username/spendsight.git
