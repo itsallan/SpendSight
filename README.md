@@ -90,21 +90,21 @@ git clone https://github.com/your-username/spendsight.git
 cd spendsight
 Install the necessary packages:
 
-bash
-Copy code
+```bash
 npm install
+```
 Set up your environment variables. Create a .env.local file and add your Supabase and OpenAI credentials:
 
 bash
 ```javascript
-NEXT_PUBLIC_SUPABASE_URL=<your-supabase-url>
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-supabase-anon-key>
-OPENAI_API_KEY=<your-openai-api-key>
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+OPENAI_API_KEY=your-openai-api-key
 ```
 Start the development server:
-bash
-Copy code
+```bash
 npm run dev
+```
 Now, visit http://localhost:3000 to start using SpendSight.
 
 Contributing to SpendSight
