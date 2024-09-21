@@ -86,7 +86,7 @@ Before setting up the project, make sure you have:
 
 - Node.js (v14 or higher)
 - A Supabase account
-An OpenAI API key
+- An OpenAI API key
 
 ### Installation
 
