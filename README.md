@@ -47,7 +47,7 @@ CREATE TABLE receipts (
 );
 ```
 ### Profiles Table
-sql
+```sql
 Copy code
 CREATE TABLE profiles (
   id UUID REFERENCES auth.users(id) PRIMARY KEY,
@@ -55,7 +55,7 @@ CREATE TABLE profiles (
   full_name VARCHAR(255),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
-
+```
 ### Security Policies
 To ensure user privacy, we have set up row-level security policies that restrict access to only the user’s data:
 
@@ -96,11 +96,12 @@ npm install
 Set up your environment variables. Create a .env.local file and add your Supabase and OpenAI credentials:
 
 bash
-Copy code
+```javascript
 NEXT_PUBLIC_SUPABASE_URL=<your-supabase-url>
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-supabase-anon-key>
 OPENAI_API_KEY=<your-openai-api-key>
 Start the development server:
+```
 
 bash
 Copy code
