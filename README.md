@@ -72,15 +72,16 @@ CREATE POLICY "Users can update their own profile" ON profiles
 ### Set Up Storage
 To store receipts, you'll need to create a storage bucket in Supabase:
 
-Open the Supabase dashboard.
-Create a bucket and name it receipts.
-Getting Started with SpendSight
-### Requirements
-Before you begin, ensure you have:
+1. Open the Supabase dashboard.
+2. Create a bucket and name it receipts.
 
-Node.js (v14 or later)
-A Supabase account
+### Requirements
+Before setting up the project, make sure you have:
+
+- Node.js (v14 or higher)
+- A Supabase account
 An OpenAI API key
+
 ### Installation
 1. Clone this repository:
 
@@ -109,12 +110,12 @@ Now, visit http://localhost:3000 to start using SpendSight.
 ### Contributing to SpendSight
 Thinking about contributing? Awesome! Here's what you need to do:
 
-Fork this repository.
-Create a new branch for your feature or fix.
-Make your changes.
-Submit a pull request, and we'll review it.
-Supabase Setup
-Make sure to configure Supabase for user authentication, storage, and database management:
+1. Fork this repository.
+2. Create a new branch for your feature or fix.
+3. Make your changes.
+4. Submit a pull request, and we'll review it.
+5. Supabase Setup
+6. Make sure to configure Supabase for user authentication, storage, and database management:
 
 Set up a new project in Supabase.
 Create a bucket called receipts.
