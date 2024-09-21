@@ -34,6 +34,7 @@ Here’s a breakdown of the app flow:
 SpendSight relies on two main database tables for receipts and user profiles. Here's a quick look:
 
 ### Receipts Table
+
 ```sql
 CREATE TABLE receipts (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -57,6 +58,7 @@ CREATE TABLE profiles (
 );
 ```
 ### Security Policies
+
 To ensure user privacy, we have set up row-level security policies that restrict access to only the user’s data:
 
 ```sql
@@ -70,12 +72,14 @@ CREATE POLICY "Users can update their own profile" ON profiles
 ```
   
 ### Set Up Storage
+
 To store receipts, you'll need to create a storage bucket in Supabase:
 
 1. Open the Supabase dashboard.
 2. Create a bucket and name it receipts.
 
 ### Requirements
+
 Before setting up the project, make sure you have:
 
 - Node.js (v14 or higher)
@@ -83,6 +87,7 @@ Before setting up the project, make sure you have:
 An OpenAI API key
 
 ### Installation
+
 1. Clone this repository:
 
 ```bash
@@ -108,6 +113,7 @@ npm run dev
 Now, visit http://localhost:3000 to start using SpendSight.
 
 ### Contributing to SpendSight
+
 Thinking about contributing? Awesome! Here's what you need to do:
 
 1. Fork this repository.
@@ -118,14 +124,19 @@ Thinking about contributing? Awesome! Here's what you need to do:
 6. Make sure to configure Supabase for user authentication, storage, and database management:
 
 ### Set up a new project in Supabase.
-Create a bucket called receipts.
+
+Create a bucket called `receipts`.
 Run the SQL scripts for the `receipts` and `profiles` tables provided earlier.
+
 ### How to Use SpendSight
-1. Upload Receipts: After signing up or logging in, start by uploading your receipts.
-2. AI Data Extraction: Watch as OpenAI works its magic by extracting key details.
-3. Track Spending: View the extracted details in your personalized dashboard.
-4. Export as CSV: Want a downloadable record? Export your receipt data in CSV format with one click.
-   ## Authors
+1. **Upload Receipts**: After signing up or logging in, start by uploading your receipts.
+2. **AI Data Extraction**: Watch as OpenAI works its magic by extracting key details.
+3. **Track Spending**: View the extracted details in your personalized dashboard.
+4. **Export as CSV**: Want a downloadable record? Export your receipt data in CSV format with one click.
+## Demo
+
+Check out the deployed [App](https://www.github.com/itsallan)
+## Authors
 
 - [allan](https://www.github.com/itsallan)
 
