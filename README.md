@@ -100,9 +100,8 @@ bash
 NEXT_PUBLIC_SUPABASE_URL=<your-supabase-url>
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-supabase-anon-key>
 OPENAI_API_KEY=<your-openai-api-key>
-Start the development server:
 ```
-
+Start the development server:
 bash
 Copy code
 npm run dev
