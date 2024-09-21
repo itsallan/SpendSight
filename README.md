@@ -1,31 +1,37 @@
 # SpendSight
 
-SpendSight is a Next.js and TypeScript application that allows users to upload receipts, extract key details using the OpenAI API, and track their spending. It uses Supabase for authentication, storage, and database management.
+Welcome to **SpendSight** – a handy tool designed to help users keep track of their spending by simply uploading receipts. It's built using **Next.js** and **TypeScript**, with **Supabase** handling our backend tasks like authentication, storage, and the database, and **OpenAI** handling the magic of extracting receipt details.
 
-## Features
+## What SpendSight Does
 
-- **Receipt Upload**: Users can upload receipt images.
-- **AI-Powered Extraction**: OpenAI extracts details from receipts, such as items purchased and total amount.
-- **Data Storage**: Extracted data is stored in the Supabase database.
-- **User Dashboard**: Users can view their receipts and spending trends through graphs.
-- **CSV Export**: Users can export a CSV file of their receipts and related data.
+With SpendSight, you can:
 
-## Technologies
+- **Upload Receipts**: Snap a picture or upload a digital receipt.
+- **AI-Powered Extraction**: We'll automatically grab important details from the receipt, like items purchased and the total amount spent, thanks to OpenAI.
+- **Store Your Data**: All extracted information is saved safely in the Supabase database.
+- **Track Your Spending**: You can easily view your past purchases in a visually pleasing dashboard with graphs showing your spending trends.
+- **Export CSV**: Want to take your data with you? You can export all your receipts into a CSV file anytime.
 
-- **Next.js**: For building the frontend.
-- **TypeScript**: For type safety and better development experience.
-- **Supabase**: Authentication, storage (bucket), and database.
-- **OpenAI API**: For extracting details from uploaded receipt images.
+## The Tech Stack
 
-## How It Works
+- **Next.js**: React framework for building the frontend.
+- **TypeScript**: Ensures clean, well-typed code.
+- **Supabase**: Used for user authentication, database management, and file storage.
+- **OpenAI API**: Extracts all the essential details from your uploaded receipts.
 
-1. A user uploads an image of their receipt.
-2. The OpenAI API extracts the details (items, total amount, etc.) from the receipt.
-3. These details are saved in the Supabase database.
-4. The user's dashboard displays the receipt details and visualizes financial data (spending trends, graphs, etc.).
-5. Users can export their data as a CSV file for further use.
+## How It All Works
 
-## Database Schema
+Here’s a breakdown of the app flow:
+
+1. A user uploads a receipt image.
+2. OpenAI analyzes the image and extracts details like merchant name, date, items, and total amount.
+3. The extracted data is stored in Supabase for future access.
+4. On the user's dashboard, graphs and charts provide insights into spending habits.
+5. Users can also download their receipt data as a CSV file.
+
+## Database Schema Overview
+
+SpendSight relies on two main database tables for receipts and user profiles. Here's a quick look:
 
 ### Receipts Table
 
