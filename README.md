@@ -46,13 +46,36 @@ CREATE TABLE receipts (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 ```
+### Profiles Table
+sql
+Copy code
+CREATE TABLE profiles (
+  id UUID REFERENCES auth.users(id) PRIMARY KEY,
+  username VARCHAR(255) UNIQUE,
+  full_name VARCHAR(255),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+### Security Policies
+To ensure user privacy, we have set up row-level security policies that restrict access to only the user’s data:
+
+```sql
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can only view their own profile" ON profiles
+  FOR SELECT USING (auth.uid() = id);
+
+CREATE POLICY "Users can update their own profile" ON profiles
+  FOR UPDATE USING (auth.uid() = id);
+```
+  
 ### Set Up Storage
 To store receipts, you'll need to create a storage bucket in Supabase:
 
 Open the Supabase dashboard.
 Create a bucket and name it receipts.
 Getting Started with SpendSight
-Requirements
+### Requirements
 Before you begin, ensure you have:
 
 Node.js (v14 or later)
