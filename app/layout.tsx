@@ -7,7 +7,7 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'SpendSight',
-  description: 'Your app description',
+  description: 'AI-Powered Receipt Management',
 }
 
 export default function RootLayout({

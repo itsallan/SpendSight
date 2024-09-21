@@ -51,24 +51,23 @@ export default function Dashboard({ user }: DashboardProps) {
 
     fetchReceipts();
 
-    // Set up realtime subscription for receipts
     const receiptsSubscription = supabase
       .channel('receipts_changes')
-      .on('postgres_changes', 
-        { 
-          event: '*', 
-          schema: 'public', 
+      .on('postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
           table: 'receipts',
           filter: `user_id=eq.${user.id}`
-        }, 
+        },
         (payload) => {
           console.log('Change received!', payload);
           setReceipts((currentReceipts) => {
             if (payload.eventType === 'INSERT') {
               return [...currentReceipts, payload.new as Receipt];
             } else if (payload.eventType === 'UPDATE') {
-              return currentReceipts.map((receipt) => 
-                receipt.id === payload.new.id ? {...receipt, ...payload.new} : receipt
+              return currentReceipts.map((receipt) =>
+                receipt.id === payload.new.id ? { ...receipt, ...payload.new } : receipt
               );
             } else if (payload.eventType === 'DELETE') {
               return currentReceipts.filter((receipt) => receipt.id !== payload.old.id);
@@ -79,24 +78,22 @@ export default function Dashboard({ user }: DashboardProps) {
       )
       .subscribe();
 
-    // Set up realtime subscription for user profile
     const profileSubscription = supabase
       .channel('profile_changes')
-      .on('postgres_changes', 
-        { 
-          event: 'UPDATE', 
-          schema: 'auth', 
+      .on('postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'auth',
           table: 'users',
           filter: `id=eq.${user.id}`
-        }, 
+        },
         (payload) => {
           console.log('Profile change received!', payload);
-          setUserProfile((currentProfile) => ({...currentProfile!, ...payload.new}));
+          setUserProfile((currentProfile) => ({ ...currentProfile!, ...payload.new }));
         }
       )
       .subscribe();
 
-    // Cleanup function
     return () => {
       supabase.removeChannel(receiptsSubscription);
       supabase.removeChannel(profileSubscription);
@@ -111,12 +108,21 @@ export default function Dashboard({ user }: DashboardProps) {
   }));
 
   const handleLogout = async () => {
+    setIsLoading(true);
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-      router.push('/auth');
+
+      localStorage.removeItem('supabase.auth.token');
+      document.cookie.split(";").forEach((c) => {
+        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+      });
+
+      window.location.href = '/';
     } catch (error) {
-      console.error('Error logging out:', error);
+      console.error(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -170,9 +176,9 @@ export default function Dashboard({ user }: DashboardProps) {
             <Button onClick={() => router.push('/receipt-analyzer')} variant="outline" size="lg">
               Add New Receipt
             </Button>
-            {/* <Button onClick={handleLogout} variant="destructive" size="lg">
+            <Button onClick={handleLogout} variant="destructive" size="lg">
               <LogOut className="mr-2 h-4 w-4" /> Logout
-            </Button> */}
+            </Button>
           </div>
         </div>
 
@@ -226,7 +232,7 @@ export default function Dashboard({ user }: DashboardProps) {
                         <CartesianGrid strokeDasharray="3 3" stroke="#444" />
                         <XAxis dataKey="date" stroke="#888" />
                         <YAxis stroke="#888" />
-                        <Tooltip 
+                        <Tooltip
                           contentStyle={{ backgroundColor: '#333', border: 'none' }}
                           labelStyle={{ color: '#fff' }}
                         />
@@ -256,15 +262,15 @@ export default function Dashboard({ user }: DashboardProps) {
                   ) : (
                     <ul className="space-y-4">
                       <ScrollArea className="p-4">
-                      {receipts.slice(0, 5).map((receipt) => (
-                        <li key={receipt.id} className="flex justify-between items-center border-b border-gray-800 pb-2">
-                          <div>
-                            <p className="font-medium">{receipt.merchant}</p>
-                            <p className="text-sm text-muted-foreground">{new Date(receipt.date).toLocaleDateString()}</p>
-                          </div>
-                          <p className="font-medium text-lg">${receipt.total_amount.toFixed(2)}</p>
-                        </li>
-                      ))}
+                        {receipts.slice(0, 5).map((receipt) => (
+                          <li key={receipt.id} className="flex justify-between items-center border-b border-gray-800 pb-2">
+                            <div>
+                              <p className="font-medium">{receipt.merchant}</p>
+                              <p className="text-sm text-muted-foreground">{new Date(receipt.date).toLocaleDateString()}</p>
+                            </div>
+                            <p className="font-medium text-lg">${receipt.total_amount.toFixed(2)}</p>
+                          </li>
+                        ))}
                       </ScrollArea>
                     </ul>
                   )}
@@ -293,9 +299,9 @@ export default function Dashboard({ user }: DashboardProps) {
 
         {/* GitHub Link */}
         <div className="mt-8 text-center">
-          <a 
-            href="https://github.com/itsallan/SpendSight" 
-            target="_blank" 
+          <a
+            href="https://github.com/itsallan/SpendSight"
+            target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center text-blue-500 hover:text-blue-600"
           >
