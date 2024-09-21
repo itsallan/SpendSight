@@ -81,14 +81,14 @@ Before you begin, ensure you have:
 Node.js (v14 or later)
 A Supabase account
 An OpenAI API key
-Installation
+### Installation
 Clone this repository:
 
-bash
-Copy code
+```bash
 git clone https://github.com/your-username/spendsight.git
 cd spendsight
-Install the necessary packages:
+```
+### Install the necessary packages:
 
 ```bash
 npm install
