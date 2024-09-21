@@ -3,13 +3,14 @@
 import React, { useState, useEffect } from 'react';
 import { User } from '@supabase/auth-helpers-react';
 import { useRouter } from 'next/navigation';
-import { DollarSign, ShoppingCart, Activity, LogOut, Download, Github } from "lucide-react";
+import { DollarSign, ShoppingCart, Activity, LogOut, Download, Github, Trash2 } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from '@/app/lib/supabase';
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 
 interface Receipt {
   id: string;
@@ -29,6 +30,7 @@ export default function Dashboard({ user }: DashboardProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
   const [userProfile, setUserProfile] = useState<User | null>(user);
+  const [deleteReceiptId, setDeleteReceiptId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchReceipts = async () => {
@@ -164,6 +166,25 @@ export default function Dashboard({ user }: DashboardProps) {
     }
   };
 
+  const handleDeleteReceipt = async (id: string) => {
+    try {
+      setIsLoading(true);
+      const { error } = await supabase
+        .from('receipts')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setReceipts(receipts.filter(receipt => receipt.id !== id));
+    } catch (error) {
+      console.error('Error deleting receipt:', error);
+    } finally {
+      setIsLoading(false);
+      setDeleteReceiptId(null);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-black text-white p-6">
       <div className="max-w-[1600px] mx-auto">
@@ -261,14 +282,35 @@ export default function Dashboard({ user }: DashboardProps) {
                     <p>No receipts found. Start by adding a new receipt!</p>
                   ) : (
                     <ul className="space-y-4">
-                      <ScrollArea className="p-4">
-                        {receipts.slice(0, 5).map((receipt) => (
+                      <ScrollArea className="h-[300px] p-4">
+                        {receipts.map((receipt) => (
                           <li key={receipt.id} className="flex justify-between items-center border-b border-gray-800 pb-2">
                             <div>
                               <p className="font-medium">{receipt.merchant}</p>
                               <p className="text-sm text-muted-foreground">{new Date(receipt.date).toLocaleDateString()}</p>
                             </div>
-                            <p className="font-medium text-lg">${receipt.total_amount.toFixed(2)}</p>
+                            <div className="flex items-center">
+                              <p className="font-medium text-lg mr-4">${receipt.total_amount.toFixed(2)}</p>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button variant="destructive" size="icon">
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      This action cannot be undone. This will permanently delete the receipt from your account.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => handleDeleteReceipt(receipt.id)}>Delete</AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </div>
                           </li>
                         ))}
                       </ScrollArea>
