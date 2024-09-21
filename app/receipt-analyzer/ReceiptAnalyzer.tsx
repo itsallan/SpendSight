@@ -3,16 +3,16 @@
 import React, { useState, useEffect } from 'react';
 import { useChat } from 'ai/react';
 import { createClient, PostgrestError } from '@supabase/supabase-js';
-import { useUser } from '@supabase/auth-helpers-react';
+import { User } from '@supabase/auth-helpers-nextjs';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import { ReceiptIcon, Image as ImageIcon, ArrowLeft } from "lucide-react"
+import { ReceiptIcon, Image as ImageIcon } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/app/lib/supabase';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 interface StructuredReceipt {
   items: { name: string; price: string }[];
@@ -23,25 +23,12 @@ interface StructuredReceipt {
   date: string;
 }
 
+interface ReceiptAnalyzerContentProps {
+  user: User;
+}
+
 function cleanJsonString(str: string): string {
-  // Remove markdown code blocks
-  str = str.replace(/```json\n?|\n?```/g, '');
-  
-  // Trim whitespace
-  str = str.trim();
-  
-  // Ensure the string starts and ends with curly braces
-  if (!str.startsWith('{')) str = '{' + str;
-  if (!str.endsWith('}')) str = str + '}';
-  
-  // Replace any single quotes with double quotes
-  str = str.replace(/'/g, '"');
-  
-  // Attempt to fix common JSON formatting issues
-  str = str.replace(/(\w+):/g, '"$1":');  // Ensure all keys are quoted
-  str = str.replace(/,\s*([\]}])/g, '$1');  // Remove trailing commas
-  
-  return str;
+  return str.replace(/```json\n?/, '').replace(/```\n?/, '').trim();
 }
 
 function isPostgrestError(error: any): error is PostgrestError {
@@ -54,16 +41,16 @@ function isPostgrestError(error: any): error is PostgrestError {
   );
 }
 
-export default function ReceiptAnalyzer() {
+export default function ReceiptAnalyzer({ user }: ReceiptAnalyzerContentProps) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [structuredOutput, setStructuredOutput] = useState<StructuredReceipt | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const { messages, append, isLoading } = useChat({
     api: '/api/use-chat-vision',
   });
-  const user = useUser();
   const { toast } = useToast();
   const router = useRouter();
+  const supabase = createClientComponentClient();
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -127,35 +114,17 @@ export default function ReceiptAnalyzer() {
   };
 
   const saveReceiptToDatabase = async (receipt: StructuredReceipt) => {
-    if (!user) {
-      toast({
-        title: "Authentication Error",
-        description: "You must be logged in to save receipts.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setIsSaving(true);
 
     try {
       const totalAmount = typeof receipt.total === 'string' 
-        ? parseFloat(receipt.total.replace(/[^0-9.-]+/g, ""))
+        ? parseFloat(receipt.total.replace('$', ''))
         : receipt.total;
-
-      if (isNaN(totalAmount)) {
-        throw new Error('Invalid total amount');
-      }
-
-      const receiptDate = new Date(receipt.date);
-      if (isNaN(receiptDate.getTime())) {
-        throw new Error('Invalid date');
-      }
 
       const receiptData = {
         user_id: user.id,
         merchant: receipt.location,
-        date: receiptDate.toISOString(),
+        date: new Date(receipt.date).toISOString(),
         total_amount: totalAmount,
         items: receipt.items,
       };
@@ -179,7 +148,7 @@ export default function ReceiptAnalyzer() {
       console.error('Error saving receipt:', error);
       let errorMessage = 'An unexpected error occurred';
       if (isPostgrestError(error)) {
-        errorMessage = `Database error: ${error.message}`;
+        errorMessage = `Supabase error: ${error.message}`;
       } else if (error instanceof Error) {
         errorMessage = error.message;
       }
@@ -199,21 +168,14 @@ export default function ReceiptAnalyzer() {
       if (lastMessage.role === 'assistant') {
         try {
           const cleanedContent = cleanJsonString(lastMessage.content);
-          console.log('Cleaned content:', cleanedContent);
           const parsedOutput = JSON.parse(cleanedContent) as StructuredReceipt;
-          
-          // Validate the parsed output
-          if (!parsedOutput.items || !Array.isArray(parsedOutput.items) || !parsedOutput.location || !parsedOutput.total || !parsedOutput.date) {
-            throw new Error('Invalid receipt structure');
-          }
-          
           setStructuredOutput(parsedOutput);
         } catch (error) {
           console.error('Error parsing AI response:', error);
           console.log('Raw AI response:', lastMessage.content);
           toast({
             title: "Parsing Error",
-            description: "Failed to parse the analyzed receipt data. Please try again or contact support if the issue persists.",
+            description: "Failed to parse the analyzed receipt data.",
             variant: "destructive",
           });
         }
@@ -226,9 +188,6 @@ export default function ReceiptAnalyzer() {
       <div className="max-w-7xl mx-auto">
         <Card className="bg-[#030303] border-gray-800">
           <CardHeader className="flex flex-row items-center justify-between">
-            <Button variant="ghost" onClick={() => router.push('/')} className="text-white">
-              <ArrowLeft className="mr-2 h-4 w-4" /> Back to Dashboard
-            </Button>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col md:flex-row gap-6">
@@ -295,7 +254,7 @@ export default function ReceiptAnalyzer() {
                         </div>
                         {structuredOutput.machcat && (
                           <div>
-                            <p className="text-sm text-gray-400">Merchant Code</p>
+                            <p className="text-sm text-gray-400">MACHCAT</p>
                             <p>{structuredOutput.machcat}</p>
                           </div>
                         )}

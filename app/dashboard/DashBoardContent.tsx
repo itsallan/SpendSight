@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from '@/app/lib/supabase';
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 interface Receipt {
   id: string;
@@ -27,6 +28,7 @@ export default function Dashboard({ user }: DashboardProps) {
   const [receipts, setReceipts] = useState<Receipt[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
+  const [userProfile, setUserProfile] = useState<User | null>(user);
 
   useEffect(() => {
     const fetchReceipts = async () => {
@@ -48,6 +50,57 @@ export default function Dashboard({ user }: DashboardProps) {
     };
 
     fetchReceipts();
+
+    // Set up realtime subscription for receipts
+    const receiptsSubscription = supabase
+      .channel('receipts_changes')
+      .on('postgres_changes', 
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'receipts',
+          filter: `user_id=eq.${user.id}`
+        }, 
+        (payload) => {
+          console.log('Change received!', payload);
+          setReceipts((currentReceipts) => {
+            if (payload.eventType === 'INSERT') {
+              return [...currentReceipts, payload.new as Receipt];
+            } else if (payload.eventType === 'UPDATE') {
+              return currentReceipts.map((receipt) => 
+                receipt.id === payload.new.id ? {...receipt, ...payload.new} : receipt
+              );
+            } else if (payload.eventType === 'DELETE') {
+              return currentReceipts.filter((receipt) => receipt.id !== payload.old.id);
+            }
+            return currentReceipts;
+          });
+        }
+      )
+      .subscribe();
+
+    // Set up realtime subscription for user profile
+    const profileSubscription = supabase
+      .channel('profile_changes')
+      .on('postgres_changes', 
+        { 
+          event: 'UPDATE', 
+          schema: 'auth', 
+          table: 'users',
+          filter: `id=eq.${user.id}`
+        }, 
+        (payload) => {
+          console.log('Profile change received!', payload);
+          setUserProfile((currentProfile) => ({...currentProfile!, ...payload.new}));
+        }
+      )
+      .subscribe();
+
+    // Cleanup function
+    return () => {
+      supabase.removeChannel(receiptsSubscription);
+      supabase.removeChannel(profileSubscription);
+    };
   }, [user.id]);
 
   const totalSpent = receipts.reduce((sum, receipt) => sum + receipt.total_amount, 0);
@@ -76,7 +129,7 @@ export default function Dashboard({ user }: DashboardProps) {
         const receiptDate = new Date(receipt.date).toLocaleDateString();
         if (receipt.items && receipt.items.length > 0) {
           receipt.items.forEach((item, index) => {
-            csvContent += `${receiptDate},${receipt.merchant},${item.name},${item.price.toFixed(2)}`;
+            csvContent += `${receipt.date},${receipt.merchant},${item.name},${item.price.toFixed(2)}`;
             if (index === 0) {
               csvContent += `,${receipt.total_amount.toFixed(2)}`;
             }
@@ -117,9 +170,9 @@ export default function Dashboard({ user }: DashboardProps) {
             <Button onClick={() => router.push('/receipt-analyzer')} variant="outline" size="lg">
               Add New Receipt
             </Button>
-            <Button onClick={handleLogout} variant="destructive" size="lg">
+            {/* <Button onClick={handleLogout} variant="destructive" size="lg">
               <LogOut className="mr-2 h-4 w-4" /> Logout
-            </Button>
+            </Button> */}
           </div>
         </div>
 
@@ -202,6 +255,7 @@ export default function Dashboard({ user }: DashboardProps) {
                     <p>No receipts found. Start by adding a new receipt!</p>
                   ) : (
                     <ul className="space-y-4">
+                      <ScrollArea className="p-4">
                       {receipts.slice(0, 5).map((receipt) => (
                         <li key={receipt.id} className="flex justify-between items-center border-b border-gray-800 pb-2">
                           <div>
@@ -211,6 +265,7 @@ export default function Dashboard({ user }: DashboardProps) {
                           <p className="font-medium text-lg">${receipt.total_amount.toFixed(2)}</p>
                         </li>
                       ))}
+                      </ScrollArea>
                     </ul>
                   )}
                 </CardContent>

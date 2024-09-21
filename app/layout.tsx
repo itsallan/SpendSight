@@ -6,7 +6,7 @@ import SupabaseProvider from '@/components/SupabaseProvider'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Your App Name',
+  title: 'SpendSight',
   description: 'Your app description',
 }
 

@@ -41,7 +41,7 @@ export default function AuthPage() {
                 description: "Please check your email to confirm your account.",
             });
 
-            router.push('/auth/confirm');
+            router.push('/dashboard');
         } catch (error) {
             console.error('Error signing up:', error);
             toast({
